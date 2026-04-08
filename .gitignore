@@ -1,0 +1,20 @@
+# Environnement virtuel (très lourd, ne pas envoyer)
+.venv/
+env/
+venv/
+
+# Dossiers de configuration VS Code
+.vscode/
+
+# Fichiers temporaires Python
+__pycache__/
+*.pyc
+
+# Images et résultats (on garde le code, pas les photos)
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Dossier de cache FastF1 (si tu en as un)
+cache/
