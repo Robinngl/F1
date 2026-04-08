@@ -15,6 +15,7 @@ __pycache__/
 *.jpeg
 *.pdf
 Figures/
+*.png
 
 # Dossier de cache FastF1 (si tu en as un)
 cache/
