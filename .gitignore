@@ -11,10 +11,10 @@ __pycache__/
 *.pyc
 
 # Images et résultats (on garde le code, pas les photos)
-*.png
 *.jpg
 *.jpeg
 *.pdf
+Figures/
 
 # Dossier de cache FastF1 (si tu en as un)
 cache/
