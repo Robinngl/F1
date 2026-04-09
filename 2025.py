@@ -89,3 +89,5 @@ plt.tight_layout()
 plt.savefig(f"F1_2025.png", dpi=300)
 print(f"\nTerminé ! Lando Norris finit à {int(all_standings['NOR'][-1])} points.")
 plt.show()
+
+# Test de synchronisation avec GitHub Desktop
