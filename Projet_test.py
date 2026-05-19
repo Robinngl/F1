@@ -1,36 +1,66 @@
-import fastf1
-import fastf1.plotting
-import matplotlib.pyplot as plt
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import os
 
-# On active le design "spécial F1" de FastF1
-fastf1.plotting.setup_mpl()
+# --- 1. CRÉATION DU PDF ---
+def create_pdf(filename):
+    c = canvas.Canvas(filename, pagesize=letter)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, 750, "Récapitulatif F1 - Test Automatique")
+    
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 720, "Ceci est un exemple de document généré par ton futur système.")
+    c.drawString(100, 700, "Résultats du week-end :")
+    
+    # Simulation de données
+    c.drawString(120, 680, "- Vainqueur : Max Verstappen")
+    c.drawString(120, 660, "- Meilleur tour : Lando Norris")
+    c.drawString(120, 640, "- Incident : Safety Car au tour 12")
+    
+    c.save()
 
-# 1. Chargement de la session (Année, Grand Prix, Session)
-session = fastf1.get_session(2023, 'Monaco', 'R')
-session.load()
+# --- 2. ENVOI DU MAIL ---
+def send_email(receiver_email, file_to_attach):
+    # Paramètres de connexion (Exemple pour Gmail)
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+    sender_email = "robin.nagel2001@gmail.com"
+    password = "vtgawtwbluxpzbtl" # Ne pas utiliser le mot de passe principal
 
-# 2. Sélection des pilotes à comparer
-driver_1 = 'VER'
-driver_2 = 'ALO'
+    # Création du message
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = "🏎️ Ton Récap F1 est arrivé !"
 
-# 3. Récupération des tours pour chaque pilote
-laps_driver_1 = session.laps.pick_driver(driver_1)
-laps_driver_2 = session.laps.pick_driver(driver_2)
+    body = "Salut ! Voici le compte-rendu du dernier Grand Prix en pièce jointe."
+    msg.attach(MIMEText(body, 'plain'))
 
-# 4. Création du graphique
-plt.figure(figsize=(12, 6))
+    # Pièce jointe
+    with open(file_to_attach, "rb") as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f"attachment; filename= {file_to_attach}")
+        msg.attach(part)
 
-# On trace les temps au tour (en secondes)
-plt.plot(laps_driver_1['LapNumber'], laps_driver_1['LapTime'].dt.total_seconds(), 
-         color='blue', label=driver_1)
-plt.plot(laps_driver_2['LapNumber'], laps_driver_2['LapTime'].dt.total_seconds(), 
-         color='green', label=driver_2)
+    # Envoi réel
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, password)
+        server.send_message(msg)
+        server.quit()
+        print("Mail envoyé avec succès !")
+    except Exception as e:
+        print(f"Erreur lors de l'envoi : {e}")
 
-# Personnalisation
-plt.title(f"Comparaison des temps au tour : {driver_1} vs {driver_2}\n{session.event['EventName']} {session.event.year}")
-plt.xlabel("Numéro du tour")
-plt.ylabel("Temps au tour (s)")
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.6)
-
-plt.show()
+# --- EXÉCUTION ---
+pdf_name = "Recap_F1_Test.pdf"
+create_pdf(pdf_name)
+send_email("robin.nagel2001@gmail.com", pdf_name)
